@@ -31,5 +31,15 @@ public abstract class IrisSamplersMixin {
             GlSampler.NEAREST,
             "iris_ObjCubedAtlasSampler"
         );
+
+        if (hasTexture) {
+            samplers.addExternalSampler(IrisSamplers.ALBEDO_TEXTURE_UNIT, "iris_ObjCubedSampler");
+        } else {
+            samplers.addDynamicSampler(
+                () -> ((GpuTextureInterface) whitePixel.getTexture()).iris$getGlId(),
+                GlSampler.NEAREST,
+                "iris_ObjCubedSampler"
+            );
+        }
     }
 }

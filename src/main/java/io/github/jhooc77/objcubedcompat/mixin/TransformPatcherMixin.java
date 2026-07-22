@@ -20,6 +20,15 @@ import java.util.Map;
 
 @Mixin(value = TransformPatcher.class, remap = false)
 public abstract class TransformPatcherMixin {
+    private static final String PATCH_SODIUM_1_10 = "patchSodium("
+        + "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;"
+        + "Lnet/irisshaders/iris/gl/blending/AlphaTest;"
+        + "Lit/unimi/dsi/fastutil/objects/Object2ObjectMap;)Ljava/util/Map;";
+    private static final String PATCH_SODIUM_1_11 = "patchSodium("
+        + "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;"
+        + "Lnet/irisshaders/iris/gl/blending/AlphaTest;"
+        + "Lit/unimi/dsi/fastutil/objects/Object2ObjectMap;Z)Ljava/util/Map;";
+
     @Inject(method = "transform", at = @At("RETURN"), cancellable = true)
     private static void objCubed$injectVanilla(
         String name,
@@ -46,8 +55,8 @@ public abstract class TransformPatcherMixin {
         }
     }
 
-    @Inject(method = "patchSodium", at = @At("RETURN"), cancellable = true)
-    private static void objCubed$injectSodiumTerrain(
+    @Inject(method = PATCH_SODIUM_1_10, at = @At("RETURN"), cancellable = true, require = 0)
+    private static void objCubed$injectSodiumTerrain110(
         String name,
         String vertex,
         String geometry,
@@ -56,6 +65,22 @@ public abstract class TransformPatcherMixin {
         String fragment,
         AlphaTest alpha,
         Object2ObjectMap<Tri<String, TextureType, TextureStage>, String> textureMap,
+        CallbackInfoReturnable<Map<PatchShaderType, String>> cir
+    ) {
+        cir.setReturnValue(ObjCubedShaderInjector.injectSodiumTerrain(cir.getReturnValue(), name));
+    }
+
+    @Inject(method = PATCH_SODIUM_1_11, at = @At("RETURN"), cancellable = true, require = 0)
+    private static void objCubed$injectSodiumTerrain111(
+        String name,
+        String vertex,
+        String geometry,
+        String tessControl,
+        String tessEval,
+        String fragment,
+        AlphaTest alpha,
+        Object2ObjectMap<Tri<String, TextureType, TextureStage>, String> textureMap,
+        boolean hasTessellation,
         CallbackInfoReturnable<Map<PatchShaderType, String>> cir
     ) {
         cir.setReturnValue(ObjCubedShaderInjector.injectSodiumTerrain(cir.getReturnValue(), name));

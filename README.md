@@ -40,12 +40,19 @@ OptiFine은 재배포가 허용되지 않으므로 패치된 OptiFine 자체를 
 3. 다음 명령을 실행합니다.
 
 ```text
-java -jar obj-cubed-optifine-patcher-0.1.0.jar preview_OptiFine_26.1.2_HD_U_K1_pre2.jar
+java -jar obj-cubed-optifine-patcher-0.1.1.jar preview_OptiFine_26.1.2_HD_U_K1_pre2.jar
 ```
 
 4. 생성된 `*-objcubed.jar`를 평소 OptiFine 설치 파일처럼 직접 실행합니다.
 
 패처는 입력 SHA-256을 확인하며 공식 K1 pre1/pre2만 허용합니다. 원본 JAR은 수정하지 않습니다. 생성된 OptiFine JAR은 개인 사용만 하고 재배포하지 마세요.
+
+## 검증 범위
+
+- Fabric 동반 모드는 Minecraft 26.1.1 + Iris 1.10.9 + Sodium 0.8.9와 Minecraft 26.1.2 + Iris 1.11.2 + Sodium 0.9.1 양쪽에서 컴파일하고 동일한 런타임 클래스가 생성되는지 확인합니다.
+- entity/block/Sodium 주입기는 빌드마다 GLSL main 래핑, 입력 재지정, BLOCK/ENTITY 분리와 Sodium UV 보정을 자체 검사합니다.
+- OptiFine 패처는 공식 K1 pre1/pre2 양쪽에서 `srg`와 `notch` 클래스 모두를 패치하며, 각 경로의 반환점 네 곳에 브리지 호출이 삽입되는 것을 확인했습니다.
+- 실제 화면 검증 항목은 [TEST_MATRIX.md](TEST_MATRIX.md)에 있습니다.
 
 ## 빌드
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1-rc.1
+
+- 동반 모드의 obj-cubed 원본 텍스처 sampler를 OpenGL 기본값에 의존하지 않고 Iris albedo texture unit에 명시적으로 바인딩
+- Iris 1.10.9/Sodium 0.8.9와 Iris 1.11.2/Sodium 0.9.1 CI 매트릭스 추가
+- Iris 1.10.9/1.11.2의 서로 다른 `patchSodium` 시그니처를 한 동반 JAR에서 선택적으로 지원
+- entity/block/Sodium GLSL 주입 자체 검사 추가
+- OptiFine K1 pre1/pre2의 srg/notch 실제 JAR 바이트코드 재검증
+- LGPL-3.0 전체 라이선스 본문 포함
+
 ## 0.1.0-rc.1
 
 - Minecraft 26.1–26.1.2용 단일 Iris/Sodium Fabric 동반 모드 추가

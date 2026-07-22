@@ -63,3 +63,17 @@ loom {
         useLegacyMixinAp = false
     }
 }
+
+val shaderInjectionSelfTest by tasks.registering(JavaExec::class) {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath + configurations.compileClasspath.get()
+    mainClass.set("io.github.jhooc77.objcubedcompat.shader.ObjCubedShaderInjectorSelfTest")
+}
+
+tasks.test {
+    enabled = false
+}
+
+tasks.check {
+    dependsOn(shaderInjectionSelfTest)
+}
