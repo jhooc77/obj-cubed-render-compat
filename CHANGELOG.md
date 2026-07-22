@@ -3,6 +3,7 @@
 ## 0.1.0-rc.1
 
 - Minecraft 26.1–26.1.2용 단일 Iris/Sodium Fabric 동반 모드 추가
+- 검증된 Minecraft 26.1 Iris 1.10.9 전체 교체 빌드와 소스 브랜치 추가
 - Iris 1.10.9/Sodium 0.8.9 및 Iris 1.11.2/Sodium 0.9.1 양쪽 컴파일 검증
 - entity/equipment/display/block shader decoder 주입
 - Sodium 비셰이더 terrain decoder 주입
