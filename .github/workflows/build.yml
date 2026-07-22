@@ -31,7 +31,7 @@ jobs:
           java-version: '25'
           cache: gradle
       - name: Build and test
-        run: .\gradlew.bat clean build -Pminecraft_version=${{ matrix.minecraft }} -Piris_version_id=${{ matrix.iris }} -Psodium_version_id=${{ matrix.sodium }}
+        run: .\gradlew.bat clean build "-Pminecraft_version=${{ matrix.minecraft }}" "-Piris_version_id=${{ matrix.iris }}" "-Psodium_version_id=${{ matrix.sodium }}"
       - uses: actions/upload-artifact@v4
         with:
           name: compatibility-jars-${{ matrix.name }}
