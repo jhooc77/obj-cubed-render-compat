@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "obj_cubed_iris_compat",
+  "version": "${version}",
+  "name": "obj-cubed Iris Compatibility",
+  "description": "Runtime shader bridge between obj-cubed resource packs and upstream Iris.",
+  "authors": ["jhooc77"],
+  "license": "LGPL-3.0-only",
+  "environment": "client",
+  "mixins": [
+    "obj-cubed-iris-compat.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.5",
+    "minecraft": "${minecraft_dependency}",
+    "iris": "${iris_dependency}",
+    "sodium": "${sodium_dependency}"
+  }
+}

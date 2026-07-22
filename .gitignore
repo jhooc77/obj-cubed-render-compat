@@ -1,0 +1,7 @@
+.gradle/
+build/
+run/
+*.log
+third-party/
+*.patched.jar
+*-objcubed.jar

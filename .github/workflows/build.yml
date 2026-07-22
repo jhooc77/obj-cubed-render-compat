@@ -1,0 +1,27 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '25'
+          cache: gradle
+      - name: Build and test
+        run: .\gradlew.bat build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-jars
+          path: |
+            build/libs/*-0.1.0.jar
+            optifine-patcher/build/libs/*-0.1.0.jar
