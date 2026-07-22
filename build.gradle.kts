@@ -9,7 +9,9 @@ val NEOFORGE_VERSION by extra { "26.1.1.0-beta" }
 val FABRIC_LOADER_VERSION by extra { "0.18.5" }
 val FABRIC_API_VERSION by extra { "0.145.1+26.1" }
 
-val SODIUM_DEPENDENCY_FABRIC by extra { files(rootDir.resolve("custom_sodium").resolve("sodium-fabric-0.8.9-SNAPSHOT+mc26.1.1-local.jar")) }
+// Keep the public Fabric snapshot reproducible. The previous local file points at
+// a developer-only Sodium build which is intentionally not committed.
+val SODIUM_DEPENDENCY_FABRIC by extra { "maven.modrinth:AANobbMI:uGvVQBnw" }
 val SODIUM_DEPENDENCY_NEO by extra { files(rootDir.resolve("custom_sodium").resolve("net.caffeinemc.sodium-neoforge-0.8.9-SNAPSHOT+mc26.1.1-local-mod.jar")) }
 
 // This value can be set to null to disable Parchment.
