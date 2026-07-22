@@ -15,11 +15,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Iris-1.10.9-Sodium-0.8.9
+          - name: MC-26.1-Iris-1.10.9-Sodium-0.8.9
+            minecraft: '26.1'
+            iris: MwcLS51S
+            sodium: uGvVQBnw
+          - name: MC-26.1.1-Iris-1.10.9-Sodium-0.8.9
             minecraft: '26.1.1'
             iris: MwcLS51S
             sodium: uGvVQBnw
-          - name: Iris-1.11.2-Sodium-0.9.1
+          - name: MC-26.1.2-Iris-1.10.9-Sodium-0.8.10
+            minecraft: '26.1.2'
+            iris: MwcLS51S
+            sodium: SIrB5bCM
+          - name: MC-26.1.2-Iris-1.10.9-Sodium-0.8.11
+            minecraft: '26.1.2'
+            iris: MwcLS51S
+            sodium: ff7xUQLH
+          - name: MC-26.1.2-Iris-1.10.9-Sodium-0.8.12
+            minecraft: '26.1.2'
+            iris: MwcLS51S
+            sodium: eRJU33Hp
+          - name: MC-26.1.2-Iris-1.11.2-Sodium-0.9.1
             minecraft: '26.1.2'
             iris: e4ioH5mG
             sodium: vf7UgZpC

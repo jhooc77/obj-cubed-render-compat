@@ -15,7 +15,7 @@
 | ID | Minecraft | 렌더 경로 | 설치 파일 | 필수 확인 |
 |---|---|---|---|---|
 | F1 | 26.1 또는 26.1.1 | Iris 1.10.9 + Sodium 0.8.9 | 공식 Iris 옆에 `obj-cubed-iris-compat-26.1-universal-0.1.1.jar` | 셰이더 off/on, 공통 장면 |
-| F2 | 26.1.2 | Iris 1.10.9 + Sodium 0.8.9 | 공식 Iris 옆에 동일한 동반 JAR | 기존 26.1 조합의 26.1.2 실행, 셰이더 off/on |
+| F2 | 26.1.2 | Iris 1.10.9 + Sodium 0.8.9–0.8.12 | 공식 Iris 옆에 동일한 동반 JAR | 기존 26.1 조합의 26.1.2 실행, 셰이더 off/on |
 | F3 | 26.1.2 | Iris 1.11.2 + Sodium 0.9.1 | 공식 Iris 옆에 동일한 동반 JAR | 최신 26.1.2 조합, 셰이더 off/on, 공통 장면 |
 | I1 | 26.1–26.1.2 | 전체 Iris 교체본 + Sodium 0.8.9 | `iris-fabric-1.10.9-objcubed.14+mc26.1.1.jar` | 공통 장면과 OBJ 표면의 블록 파괴 금 |
 | V1 | 26.2 | Vulkan + Sodium 0.9.1 | `iris-fabric-1.11.2-objcubed-vulkan-beta.5+mc26.2.jar` | 공통 장면, 셰이더 교체, 화면 흔들림 |
