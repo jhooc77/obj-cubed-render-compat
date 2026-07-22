@@ -25,3 +25,11 @@
 F1/F2 동반 모드는 전체 Iris 교체본과 동시에 설치하지 않습니다. 동반 모드에서 블록 파괴 금은 바닐라 carrier 기준이며, OBJ 표면 투영은 I1 전체 교체본만 지원합니다.
 
 OptiFine은 OpenGL subgroup 기능이 제공되는 GPU가 필요합니다. 공식 OptiFine 26.2가 나오기 전까지 O1/O2와 동등한 26.2 경로는 없습니다.
+
+## Optional official OptiFine integration probe
+
+OptiFine 자체는 저장소나 CI에 포함하지 않습니다. 공식 K1 pre1/pre2 JAR을 직접 받은 뒤 아래 명령으로 OptiFine의 실제 GLSL remap 출력과 obj-cubed 주입기의 연결을 재검증할 수 있습니다.
+
+```text
+./gradlew officialOptiFineProbe -PoptifineJar=/path/to/preview_OptiFine_26.1.2_HD_U_K1_pre2.jar
+```

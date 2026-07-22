@@ -77,3 +77,27 @@ tasks.test {
 tasks.check {
     dependsOn(shaderInjectionSelfTest)
 }
+
+evaluationDependsOn(":optifine-patcher")
+
+val optifineSourceSets = project(":optifine-patcher").extensions.getByType<SourceSetContainer>()
+
+tasks.register<JavaExec>("officialOptiFineProbe") {
+    group = "verification"
+    description = "Runs the shader bridge against an official local OptiFine JAR"
+    dependsOn(":optifine-patcher:testClasses")
+    classpath = optifineSourceSets.getByName("test").output +
+        optifineSourceSets.getByName("main").output +
+        configurations.getByName("minecraftNamedRuntime") +
+        configurations.getByName("minecraftNatives")
+    mainClass.set("io.github.jhooc77.objcubedoptifine.OfficialOptiFineRemapProbe")
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
+    val probeWorkingDirectory = layout.buildDirectory.dir("tmp/officialOptiFineProbe")
+    workingDir(probeWorkingDirectory)
+    doFirst {
+        probeWorkingDirectory.get().asFile.mkdirs()
+        val input = providers.gradleProperty("optifineJar").orNull
+            ?: throw GradleException("Pass -PoptifineJar=<official OptiFine JAR>")
+        args(input)
+    }
+}

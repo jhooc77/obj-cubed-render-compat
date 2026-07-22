@@ -1,6 +1,7 @@
 .gradle/
 build/
 run/
+logs/
 *.log
 third-party/
 *.patched.jar
