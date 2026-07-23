@@ -1,5 +1,7 @@
 package io.github.jhooc77.objcubedcompat.shader;
 
+import io.github.jhooc77.objcubedcompat.mixin.ObjCubedCompatMixinPlugin;
+
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +40,8 @@ public final class ObjCubedShaderInjectorSelfTest {
     }
 
     public static void main(String[] args) throws Exception {
+        verifyVersionSelection();
+        verifyMixinConfiguration();
         verifyMixinTargets();
 
         Method injectVertex = ObjCubedShaderInjector.class.getDeclaredMethod(
@@ -67,6 +71,25 @@ public final class ObjCubedShaderInjectorSelfTest {
         System.out.println("Iris/Sodium shader injection self-test passed");
     }
 
+    private static void verifyVersionSelection() {
+        require(!ObjCubedCompatMixinPlugin.isMinecraft26_2Version("26.1"), "26.1 selected the 26.2 renderer hook");
+        require(!ObjCubedCompatMixinPlugin.isMinecraft26_2Version("26.1.2"), "26.1.2 selected the 26.2 renderer hook");
+        require(ObjCubedCompatMixinPlugin.isMinecraft26_2Version("26.2"), "26.2 did not select its renderer hook");
+        require(ObjCubedCompatMixinPlugin.isMinecraft26_2Version("26.2.1"), "26.2 patch version did not select its renderer hook");
+    }
+
+    private static void verifyMixinConfiguration() throws Exception {
+        try (InputStream input = ObjCubedShaderInjectorSelfTest.class.getClassLoader()
+            .getResourceAsStream("obj-cubed-iris-compat.mixins.json")) {
+            require(input != null, "Mixin configuration is missing");
+            String config = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            require(config.contains("ObjCubedCompatMixinPlugin"), "Version selector plugin is missing");
+            require(config.contains("ShadowRendererMixin"), "Legacy Iris shadow hook is missing");
+            require(config.contains("sodium.ShaderLoaderMixin"), "Legacy Sodium hook is missing");
+            require(config.contains("minecraft26_2.ShaderManagerMixin"), "Minecraft 26.2 shader hook is missing");
+        }
+    }
+
     private static void verifyBundledSodiumShader(String tools, String decoder) throws Exception {
         try (InputStream input = ObjCubedShaderInjectorSelfTest.class.getClassLoader()
             .getResourceAsStream("assets/sodium/shaders/blocks/block_layer_opaque.vsh")) {
@@ -90,10 +113,13 @@ public final class ObjCubedShaderInjectorSelfTest {
         Class<?> irisSamplers = Class.forName("net.irisshaders.iris.samplers.IrisSamplers", false, loader);
         require(hasMethod(irisSamplers, "addLevelSamplers", 6), "Iris sampler target is missing");
 
+        Class<?> shaderManager = Class.forName(
+            "net.minecraft.client.renderer.ShaderManager", false, loader);
+        require(hasMethod(shaderManager, "loadShader", 5), "Minecraft ShaderManager source target is missing");
+
         if ("26.2".equals(System.getProperty("objcubed.test.minecraftVersion"))) {
-            Class<?> shaderManager = Class.forName(
-                "net.minecraft.client.renderer.ShaderManager", false, loader);
-            require(hasMethod(shaderManager, "loadShader", 5), "Minecraft 26.2 shader source target is missing");
+            require(Boolean.parseBoolean(System.getProperty("objcubed.test.compatibilityBuild")),
+                "Canonical universal JAR must be compiled against the 26.1 renderer generation");
         } else {
             Class<?> shadowRenderer = Class.forName("net.irisshaders.iris.shadows.ShadowRenderer", false, loader);
             require(hasMethod(shadowRenderer, "renderShadows", 3), "Iris shadow target is missing");
@@ -103,6 +129,15 @@ public final class ObjCubedShaderInjectorSelfTest {
             Class<?> shaderLoader = Class.forName(
                 "net.caffeinemc.mods.sodium.client.gl.shader.ShaderLoader", false, loader);
             require(hasMethod(shaderLoader, "getShaderSource", 1), "Sodium shader source target is missing");
+        }
+
+        if (!Boolean.parseBoolean(System.getProperty("objcubed.test.compatibilityBuild"))) {
+            Class.forName(
+                "io.github.jhooc77.objcubedcompat.mixin.minecraft26_2.ShaderManagerMixin", false, loader);
+            Class.forName(
+                "io.github.jhooc77.objcubedcompat.mixin.ShadowRendererMixin", false, loader);
+            Class.forName(
+                "io.github.jhooc77.objcubedcompat.mixin.sodium.ShaderLoaderMixin", false, loader);
         }
     }
 

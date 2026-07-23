@@ -8,11 +8,10 @@ version = property("mod_version") as String
 
 val minecraftVersion = property("minecraft_version").toString()
 val isMinecraft26_2 = minecraftVersion == "26.2"
-val versionSpecificMixins = if (isMinecraft26_2) {
-    "minecraft26_2.ShaderManagerMixin"
-} else {
-    "ShadowRendererMixin\",\n    \"sodium.ShaderLoaderMixin"
-}
+val compatibilityBuild = providers.gradleProperty("compatibility_build")
+    .map(String::toBoolean)
+    .orElse(false)
+    .get()
 
 base {
     archivesName.set("obj-cubed-iris-compat-${property("artifact_suffix")}")
@@ -47,9 +46,11 @@ java {
 
 sourceSets {
     main {
-        if (isMinecraft26_2) {
+        if (compatibilityBuild && isMinecraft26_2) {
             java.exclude("io/github/jhooc77/objcubedcompat/mixin/ShadowRendererMixin.java")
             java.exclude("io/github/jhooc77/objcubedcompat/mixin/sodium/ShaderLoaderMixin.java")
+        }
+        if (!compatibilityBuild || isMinecraft26_2) {
             java.srcDir("src/mc26_2/java")
         }
     }
@@ -65,7 +66,6 @@ tasks.processResources {
     inputs.property("minecraft_dependency", project.property("minecraft_dependency"))
     inputs.property("iris_dependency", project.property("iris_dependency"))
     inputs.property("sodium_dependency", project.property("sodium_dependency"))
-    inputs.property("version_specific_mixins", versionSpecificMixins)
     filesMatching("fabric.mod.json") {
         expand(
             "version" to project.version,
@@ -73,9 +73,6 @@ tasks.processResources {
             "iris_dependency" to project.property("iris_dependency").toString(),
             "sodium_dependency" to project.property("sodium_dependency").toString()
         )
-    }
-    filesMatching("obj-cubed-iris-compat.mixins.json") {
-        expand("version_specific_mixins" to versionSpecificMixins)
     }
 }
 
@@ -91,6 +88,7 @@ val shaderInjectionSelfTest by tasks.registering(JavaExec::class) {
     classpath = sourceSets.test.get().runtimeClasspath + configurations.compileClasspath.get()
     mainClass.set("io.github.jhooc77.objcubedcompat.shader.ObjCubedShaderInjectorSelfTest")
     systemProperty("objcubed.test.minecraftVersion", minecraftVersion)
+    systemProperty("objcubed.test.compatibilityBuild", compatibilityBuild)
 }
 
 tasks.test {

@@ -2,11 +2,14 @@
   "required": true,
   "minVersion": "0.8",
   "package": "io.github.jhooc77.objcubedcompat.mixin",
+  "plugin": "io.github.jhooc77.objcubedcompat.mixin.ObjCubedCompatMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
     "IrisSamplersMixin",
     "TransformPatcherMixin",
-    "${version_specific_mixins}"
+    "ShadowRendererMixin",
+    "sodium.ShaderLoaderMixin",
+    "minecraft26_2.ShaderManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

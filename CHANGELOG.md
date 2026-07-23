@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0-rc.1
+
+- Minecraft 26.1–26.2 및 Iris 1.10.9–1.11.2용 일반 OpenGL 호환 모드를 단일 범용 JAR로 통합
+- Minecraft 버전 감지 Mixin plugin으로 26.1 계열과 26.2 renderer hook을 선택 적용
+- OptiFine 26.1.2 K1 pre1/pre2 패처를 입력 SHA 자동 감지 단일 JAR로 통합
+- 공개 배포 구성을 일반 Iris 범용, 26.2 Vulkan 통합, OptiFine 자동 패처 세 JAR로 축소
+
 ## 0.2.1-rc.1
 
 - 누락됐던 Minecraft 26.2 일반 OpenGL Iris 1.11.2/Sodium 0.9.1 개별 호환 JAR 추가
