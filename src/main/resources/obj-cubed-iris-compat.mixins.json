@@ -5,9 +5,8 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "IrisSamplersMixin",
-    "ShadowRendererMixin",
     "TransformPatcherMixin",
-    "sodium.ShaderLoaderMixin"
+    "${version_specific_mixins}"
   ],
   "injectors": {
     "defaultRequire": 1

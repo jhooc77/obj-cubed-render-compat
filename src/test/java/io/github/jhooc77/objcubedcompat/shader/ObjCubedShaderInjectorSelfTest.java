@@ -1,6 +1,8 @@
 package io.github.jhooc77.objcubedcompat.shader;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public final class ObjCubedShaderInjectorSelfTest {
@@ -60,7 +62,21 @@ public final class ObjCubedShaderInjectorSelfTest {
         require(sodium.contains("_vert_tex_diffuse_coord_bias * u_TexCoordShrink"), "Sodium UV bias is missing");
         require(sodium.contains("uniform sampler2D u_BlockTex;"), "Sodium atlas binding is missing");
 
+        verifyBundledSodiumShader(tools, decoder);
+
         System.out.println("Iris/Sodium shader injection self-test passed");
+    }
+
+    private static void verifyBundledSodiumShader(String tools, String decoder) throws Exception {
+        try (InputStream input = ObjCubedShaderInjectorSelfTest.class.getClassLoader()
+            .getResourceAsStream("assets/sodium/shaders/blocks/block_layer_opaque.vsh")) {
+            require(input != null, "Installed Sodium terrain shader resource is missing");
+            String stock = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            String injected = ObjCubedShaderInjector.injectRawSodiumTerrainWithSources(stock, tools, decoder);
+            require(!stock.equals(injected), "Installed Sodium terrain shader was not injected");
+            require(injected.contains("iris_ObjCubedDecode"), "Installed Sodium shader decoder call is missing");
+            require(injected.contains("uniform sampler2D u_BlockTex;"), "Installed Sodium atlas binding is missing");
+        }
     }
 
     private static void verifyMixinTargets() throws Exception {
@@ -74,14 +90,20 @@ public final class ObjCubedShaderInjectorSelfTest {
         Class<?> irisSamplers = Class.forName("net.irisshaders.iris.samplers.IrisSamplers", false, loader);
         require(hasMethod(irisSamplers, "addLevelSamplers", 6), "Iris sampler target is missing");
 
-        Class<?> shadowRenderer = Class.forName("net.irisshaders.iris.shadows.ShadowRenderer", false, loader);
-        require(hasMethod(shadowRenderer, "renderShadows", 3), "Iris shadow target is missing");
-        require(Arrays.stream(shadowRenderer.getDeclaredFields())
-            .anyMatch(field -> field.getName().equals("outlineBuffers")), "Iris outline buffer field is missing");
+        if ("26.2".equals(System.getProperty("objcubed.test.minecraftVersion"))) {
+            Class<?> shaderManager = Class.forName(
+                "net.minecraft.client.renderer.ShaderManager", false, loader);
+            require(hasMethod(shaderManager, "loadShader", 5), "Minecraft 26.2 shader source target is missing");
+        } else {
+            Class<?> shadowRenderer = Class.forName("net.irisshaders.iris.shadows.ShadowRenderer", false, loader);
+            require(hasMethod(shadowRenderer, "renderShadows", 3), "Iris shadow target is missing");
+            require(Arrays.stream(shadowRenderer.getDeclaredFields())
+                .anyMatch(field -> field.getName().equals("outlineBuffers")), "Iris outline buffer field is missing");
 
-        Class<?> shaderLoader = Class.forName(
-            "net.caffeinemc.mods.sodium.client.gl.shader.ShaderLoader", false, loader);
-        require(hasMethod(shaderLoader, "getShaderSource", 1), "Sodium shader source target is missing");
+            Class<?> shaderLoader = Class.forName(
+                "net.caffeinemc.mods.sodium.client.gl.shader.ShaderLoader", false, loader);
+            require(hasMethod(shaderLoader, "getShaderSource", 1), "Sodium shader source target is missing");
+        }
     }
 
     private static boolean hasMethod(Class<?> owner, String name, int parameterCount) {

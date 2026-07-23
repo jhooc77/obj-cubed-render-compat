@@ -7,6 +7,9 @@ on:
 permissions:
   contents: read
 
+env:
+  MOD_VERSION: '0.2.1'
+
 jobs:
   fabric:
     name: Fabric ${{ matrix.name }}
@@ -47,6 +50,14 @@ jobs:
             minecraft_dependency: '26.1.2'
             iris_dependency: '1.11.2'
             sodium_dependency: '>=0.9.1 <0.10.0'
+          - name: MC-26.2-Iris-1.11.2-Sodium-0.9.1
+            minecraft: '26.2'
+            iris: oaD6KQls
+            sodium: 2Yom1N68
+            artifact: mc26.2-iris1.11.2
+            minecraft_dependency: '26.2'
+            iris_dependency: '1.11.2'
+            sodium_dependency: '>=0.9.1 <0.10.0'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -59,7 +70,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: compatibility-jars-${{ matrix.name }}
-          path: build/libs/obj-cubed-iris-compat-${{ matrix.artifact }}-0.2.0.jar
+          path: build/libs/obj-cubed-iris-compat-${{ matrix.artifact }}-${{ env.MOD_VERSION }}.jar
 
   optifine-patchers:
     name: OptiFine K1 ${{ matrix.target }} patcher
@@ -80,4 +91,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: optifine-patcher-26.1.2-k1-${{ matrix.target }}
-          path: optifine-patcher/build/libs/obj-cubed-optifine-patcher-mc26.1.2-k1-${{ matrix.target }}-0.2.0.jar
+          path: optifine-patcher/build/libs/obj-cubed-optifine-patcher-mc26.1.2-k1-${{ matrix.target }}-${{ env.MOD_VERSION }}.jar

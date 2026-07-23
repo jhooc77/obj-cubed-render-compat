@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1-rc.1
+
+- 누락됐던 Minecraft 26.2 일반 OpenGL Iris 1.11.2/Sodium 0.9.1 개별 호환 JAR 추가
+- Minecraft 26.2의 새 `ShaderManager` 리소스 로딩 경로에 Sodium terrain obj-cubed 디코더 주입
+- 26.2 JAR에서 26.1 전용 `ShadowRenderer` 및 구 Sodium `ShaderLoader` 믹스인을 제외
+- Vulkan 통합본 파일명을 일반 Iris 패치 모드와 명확히 구분되도록 변경
+
 ## 0.2.0-rc.1
 
 - 비-Vulkan `26.1-universal` 배포를 제거하고 Minecraft 26.1/26.1.1/26.1.2와 Iris 1.10.9/1.11.2별 JAR 네 개로 분리
