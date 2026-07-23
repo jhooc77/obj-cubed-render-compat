@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 env:
-  MOD_VERSION: '0.3.0'
+  MOD_VERSION: '0.3.1'
 
 jobs:
   fabric-universal:
@@ -66,7 +66,7 @@ jobs:
         run: .\gradlew.bat clean check "-Pcompatibility_build=true" "-Pminecraft_version=${{ matrix.minecraft }}" "-Piris_version_id=${{ matrix.iris }}" "-Psodium_version_id=${{ matrix.sodium }}"
 
   optifine-patcher:
-    name: Build auto-detecting OptiFine K1 patcher
+    name: Build structurally compatible OptiFine patcher
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,9 +75,9 @@ jobs:
           distribution: microsoft
           java-version: '25'
           cache: gradle
-      - name: Build and test pre1/pre2 auto-detection
+      - name: Build and test structural compatibility detection
         run: .\gradlew.bat :optifine-patcher:clean :optifine-patcher:build
       - uses: actions/upload-artifact@v4
         with:
-          name: optifine-patcher-26.1.2-k1
-          path: optifine-patcher/build/libs/obj-cubed-optifine-patcher-mc26.1.2-k1-${{ env.MOD_VERSION }}.jar
+          name: optifine-patcher-universal
+          path: optifine-patcher/build/libs/obj-cubed-optifine-patcher-universal-${{ env.MOD_VERSION }}.jar

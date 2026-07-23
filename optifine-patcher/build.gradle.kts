@@ -24,7 +24,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.jar {
-    archiveBaseName.set("obj-cubed-optifine-patcher-mc26.1.2-k1")
+    archiveBaseName.set("obj-cubed-optifine-patcher-universal")
     manifest.attributes["Main-Class"] = "io.github.jhooc77.objcubedoptifine.PatcherMain"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })

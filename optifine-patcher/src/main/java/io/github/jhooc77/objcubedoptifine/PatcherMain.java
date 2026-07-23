@@ -14,8 +14,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -25,17 +27,17 @@ import java.util.jar.Manifest;
 
 /** Offline patcher. It never downloads or redistributes OptiFine. */
 public final class PatcherMain {
-	private static final Set<String> TARGETS = Set.of(
-		"srg/net/optifine/shaders/ShadersCompatibility.class",
-		"notch/net/optifine/shaders/ShadersCompatibility.class"
-	);
-	private static final Set<String> BRIDGES = Set.of(
-		"srg/io/github/jhooc77/objcubedoptifine/ObjCubedOptiFineBridge.class",
-		"notch/io/github/jhooc77/objcubedoptifine/ObjCubedOptiFineBridge.class"
+	private static final List<TargetLayout> TARGET_LAYOUTS = List.of(
+		new TargetLayout(
+			"srg/net/optifine/shaders/ShadersCompatibility.class",
+			"srg/io/github/jhooc77/objcubedoptifine/ObjCubedOptiFineBridge.class"
+		),
+		new TargetLayout(
+			"notch/net/optifine/shaders/ShadersCompatibility.class",
+			"notch/io/github/jhooc77/objcubedoptifine/ObjCubedOptiFineBridge.class"
+		)
 	);
 	private static final String REMAP_DESCRIPTOR = "(Lnet/optifine/shaders/Program;Lnet/optifine/shaders/config/ShaderType;Lnet/optifine/util/LineBuffer;)Lnet/optifine/util/LineBuffer;";
-	private static final String PRE1_SHA256 = "044808D5B5B3FDF5D42155B13A83A704682C3D1ADBC9FB5572586301D0E1ED09";
-	private static final String PRE2_SHA256 = "F8EB9026E4DA2444E18D5601D3DEDE2BD19CF514D02095FFCDB0E101687C2172";
 
 	private PatcherMain() {
 	}
@@ -53,13 +55,13 @@ public final class PatcherMain {
 		if (input.equals(output)) throw new IOException("Output must differ from input");
 
 		String hash = sha256(input);
-		Target target = detectTarget(hash);
 
 		Path parent = output.getParent();
 		if (parent != null) Files.createDirectories(parent);
 		Path temporary = Files.createTempFile(parent, output.getFileName().toString(), ".tmp");
+		int patchedLayouts;
 		try {
-			patch(input, temporary);
+			patchedLayouts = patch(input, temporary);
 			Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 		} catch (Throwable throwable) {
 			Files.deleteIfExists(temporary);
@@ -67,24 +69,18 @@ public final class PatcherMain {
 		}
 		System.out.println("Patched OptiFine written to: " + output);
 		System.out.println("Input SHA-256: " + hash);
-		System.out.println("Target: OptiFine 26.1.2 HD U K1 " + target.name());
+		System.out.println("Compatibility: patched " + patchedLayouts
+			+ " OptiFine shader layout(s) by class and method structure");
 	}
 
-	static Target detectTarget(String hash) throws IOException {
-		return switch (hash.toUpperCase(java.util.Locale.ROOT)) {
-			case PRE1_SHA256 -> new Target("pre1", PRE1_SHA256);
-			case PRE2_SHA256 -> new Target("pre2", PRE2_SHA256);
-			default -> throw new IOException(
-				"Unsupported OptiFine build (SHA-256 " + hash
-					+ "). This patcher accepts only 26.1.2 HD U K1 pre1 or pre2.");
-		};
-	}
-
-	private static void patch(Path input, Path output) throws IOException {
+	private static int patch(Path input, Path output) throws IOException {
 		try (JarFile jar = new JarFile(input.toFile())) {
-			for (String target : TARGETS) {
-				if (jar.getJarEntry(target) == null) throw new IOException("OptiFine shader compatibility class was not found: " + target);
+			List<TargetLayout> matchedLayouts = new ArrayList<>();
+			for (TargetLayout layout : TARGET_LAYOUTS) {
+				if (jar.getJarEntry(layout.targetClass()) != null) matchedLayouts.add(layout);
 			}
+			if (matchedLayouts.isEmpty()) throw new IOException(
+				"Compatible OptiFine ShadersCompatibility class was not found in the input JAR");
 
 			Manifest manifest = jar.getManifest();
 			if (manifest == null) {
@@ -106,17 +102,20 @@ public final class PatcherMain {
 					if (!entry.isDirectory()) {
 						try (InputStream in = jar.getInputStream(entry)) {
 							byte[] bytes = in.readAllBytes();
-							out.write(TARGETS.contains(name) ? patchShadersCompatibility(bytes) : bytes);
+							out.write(isMatchedTarget(name, matchedLayouts)
+								? patchShadersCompatibility(bytes)
+								: bytes);
 						}
 					}
 					out.closeEntry();
 				}
-				writeBridges(out, written);
+				writeBridges(out, written, matchedLayouts);
 			}
+			return matchedLayouts.size();
 		}
 	}
 
-	private static byte[] patchShadersCompatibility(byte[] source) throws IOException {
+	static byte[] patchShadersCompatibility(byte[] source) throws IOException {
 		ClassReader reader = new ClassReader(source);
 		ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
 		int[] patchedReturns = {0};
@@ -124,7 +123,9 @@ public final class PatcherMain {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
 				MethodVisitor delegate = super.visitMethod(access, name, descriptor, signature, exceptions);
-				if (!"remap".equals(name) || !REMAP_DESCRIPTOR.equals(descriptor)) return delegate;
+				if (!"remap".equals(name)
+					|| !REMAP_DESCRIPTOR.equals(descriptor)
+					|| (access & Opcodes.ACC_STATIC) == 0) return delegate;
 				return new MethodVisitor(Opcodes.ASM9, delegate) {
 					@Override
 					public void visitInsn(int opcode) {
@@ -143,15 +144,28 @@ public final class PatcherMain {
 			}
 		};
 		reader.accept(visitor, 0);
-		if (patchedReturns[0] == 0) throw new IOException("Compatible OptiFine remap method was not found");
+		if (patchedReturns[0] == 0) throw new IOException(
+			"Compatible static OptiFine ShadersCompatibility.remap method was not found");
 		return writer.toByteArray();
 	}
 
-	private static void writeBridges(JarOutputStream out, Set<String> written) throws IOException {
+	private static boolean isMatchedTarget(String name, List<TargetLayout> matchedLayouts) {
+		for (TargetLayout layout : matchedLayouts) {
+			if (layout.targetClass().equals(name)) return true;
+		}
+		return false;
+	}
+
+	private static void writeBridges(
+		JarOutputStream out,
+		Set<String> written,
+		List<TargetLayout> matchedLayouts
+	) throws IOException {
 		try (InputStream in = PatcherMain.class.getResourceAsStream("/io/github/jhooc77/objcubedoptifine/ObjCubedOptiFineBridge.class")) {
 			if (in == null) throw new IOException("Embedded bridge class is missing");
 			byte[] bridge = in.readAllBytes();
-			for (String name : BRIDGES) {
+			for (TargetLayout layout : matchedLayouts) {
+				String name = layout.bridgeClass();
 				if (!written.add(name)) throw new IOException("Bridge class already exists in input JAR: " + name);
 				out.putNextEntry(new JarEntry(name));
 				out.write(bridge);
@@ -182,6 +196,6 @@ public final class PatcherMain {
 		}
 	}
 
-	record Target(String name, String sha256) {
+	private record TargetLayout(String targetClass, String bridgeClass) {
 	}
 }

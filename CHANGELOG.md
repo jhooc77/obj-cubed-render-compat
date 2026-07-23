@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1-rc.1
+
+- OptiFine 패처의 pre1/pre2 SHA-256 화이트리스트 제거
+- 버전명이 아니라 실제 `ShadersCompatibility.remap(...)` 정적 메서드 구조로 호환성 판정
+- 같은 내부 계약을 유지하는 pre3 및 이후 OptiFine 빌드를 수정 없이 자동 수용
+- 존재하는 `srg`/`notch` layout만 선택적으로 패치하고 대응 bridge만 삽입
+
 ## 0.3.0-rc.1
 
 - Minecraft 26.1–26.2 및 Iris 1.10.9–1.11.2용 일반 OpenGL 호환 모드를 단일 범용 JAR로 통합

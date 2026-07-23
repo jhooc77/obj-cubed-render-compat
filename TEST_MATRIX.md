@@ -20,16 +20,17 @@
 | F4 | 26.1.2 | Iris 1.11.2 + Sodium 0.9.1 | 일반 Iris 범용 JAR | 셰이더 off/on, 공통 장면 |
 | F5 | 26.2 | Iris 1.11.2 + Sodium 0.9.1 + OpenGL | 일반 Iris 범용 JAR | 셰이더 off/on, 공통 장면 |
 | V1 | 26.2 | Vulkan + Sodium 0.9.1 | Vulkan 통합 Iris JAR | 공통 장면, 셰이더 교체, 화면 흔들림 |
-| O1 | 26.1.2 | OptiFine K1 pre1 | 자동 감지 패처가 만든 개인용 `*-objcubed.jar` | 셰이더 off/on과 공통 장면 |
-| O2 | 26.1.2 | OptiFine K1 pre2 | 자동 감지 패처가 만든 개인용 `*-objcubed.jar` | 셰이더 off/on과 공통 장면 |
+| O1 | 26.1.2 | OptiFine K1 pre1 | 범용 구조 검사 패처가 만든 개인용 `*-objcubed.jar` | 셰이더 off/on과 공통 장면 |
+| O2 | 26.1.2 | OptiFine K1 pre2 | 범용 구조 검사 패처가 만든 개인용 `*-objcubed.jar` | 셰이더 off/on과 공통 장면 |
+| O3 | 이후 빌드 | 호환 `ShadersCompatibility.remap` 구조 | 같은 범용 패처 | 구조 검사 통과 후 셰이더 off/on과 공통 장면 |
 
-F1–F5는 모두 같은 `obj-cubed-iris-compat-mc26.1-26.2-iris-universal-0.3.0.jar`를 공식 Iris 및 Sodium과 함께 설치합니다. 동반 모드에서 블록 파괴 금은 바닐라 carrier 기준입니다.
+F1–F5는 모두 같은 `obj-cubed-iris-compat-mc26.1-26.2-iris-universal-0.3.1.jar`를 공식 Iris 및 Sodium과 함께 설치합니다. 동반 모드에서 블록 파괴 금은 바닐라 carrier 기준입니다.
 
-OptiFine은 OpenGL subgroup 기능이 제공되는 GPU가 필요합니다. 공식 OptiFine 26.2가 나오기 전까지 O1/O2와 동등한 26.2 경로는 없습니다.
+OptiFine은 OpenGL subgroup 기능이 제공되는 GPU가 필요합니다. O3는 패처가 버전 문자열을 추측한다는 뜻이 아니라, 실제 클래스와 메서드 계약이 유지되는 빌드를 자동으로 받아들인다는 뜻입니다.
 
 ## Optional official OptiFine integration probe
 
-OptiFine 자체는 저장소나 CI에 포함하지 않습니다. 공식 K1 pre1/pre2 JAR을 직접 받은 뒤 아래 명령으로 OptiFine의 실제 GLSL remap 출력과 obj-cubed 주입기의 연결을 재검증할 수 있습니다.
+OptiFine 자체는 저장소나 CI에 포함하지 않습니다. 공식 OptiFine JAR을 직접 받은 뒤 아래 명령으로 실제 GLSL remap 출력과 obj-cubed 주입기의 연결을 재검증할 수 있습니다.
 
 ```text
 ./gradlew officialOptiFineProbe -PoptifineJar=/path/to/preview_OptiFine_26.1.2_HD_U_K1_pre2.jar
