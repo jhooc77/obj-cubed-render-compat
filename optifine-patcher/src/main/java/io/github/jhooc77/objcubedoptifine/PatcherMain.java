@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -34,17 +35,15 @@ public final class PatcherMain {
 		"notch/io/github/jhooc77/objcubedoptifine/ObjCubedOptiFineBridge.class"
 	);
 	private static final String REMAP_DESCRIPTOR = "(Lnet/optifine/shaders/Program;Lnet/optifine/shaders/config/ShaderType;Lnet/optifine/util/LineBuffer;)Lnet/optifine/util/LineBuffer;";
-	private static final Set<String> SUPPORTED_SHA256 = Set.of(
-		"F8EB9026E4DA2444E18D5601D3DEDE2BD19CF514D02095FFCDB0E101687C2172",
-		"044808D5B5B3FDF5D42155B13A83A704682C3D1ADBC9FB5572586301D0E1ED09"
-	);
+	private static final String PRE1_SHA256 = "044808D5B5B3FDF5D42155B13A83A704682C3D1ADBC9FB5572586301D0E1ED09";
+	private static final String PRE2_SHA256 = "F8EB9026E4DA2444E18D5601D3DEDE2BD19CF514D02095FFCDB0E101687C2172";
 
 	private PatcherMain() {
 	}
 
 	public static void main(String[] args) throws Exception {
 		if (args.length < 1 || args.length > 2) {
-			System.err.println("Usage: java -jar obj-cubed-optifine-patcher.jar <official-optifine.jar> [output.jar]");
+			System.err.println("Usage: java -jar obj-cubed-optifine-patcher-mc26.1.2-k1-<pre1|pre2>.jar <official-optifine.jar> [output.jar]");
 			System.exit(2);
 		}
 		Path input = Path.of(args[0]).toAbsolutePath().normalize();
@@ -54,9 +53,10 @@ public final class PatcherMain {
 			: input.resolveSibling(stripJar(input.getFileName().toString()) + "-objcubed.jar");
 		if (input.equals(output)) throw new IOException("Output must differ from input");
 
+		Target target = loadTarget();
 		String hash = sha256(input);
-		if (!SUPPORTED_SHA256.contains(hash)) {
-			throw new IOException("Unsupported OptiFine build (SHA-256 " + hash + "). Supported: 26.1.2 HD U K1 pre1/pre2.");
+		if (!target.sha256().equals(hash)) {
+			throw new IOException("Unsupported OptiFine build (SHA-256 " + hash + "). This patcher only accepts 26.1.2 HD U K1 " + target.name() + ".");
 		}
 
 		Path parent = output.getParent();
@@ -71,6 +71,20 @@ public final class PatcherMain {
 		}
 		System.out.println("Patched OptiFine written to: " + output);
 		System.out.println("Input SHA-256: " + hash);
+		System.out.println("Target: OptiFine 26.1.2 HD U K1 " + target.name());
+	}
+
+	private static Target loadTarget() throws IOException {
+		Properties properties = new Properties();
+		try (InputStream input = PatcherMain.class.getResourceAsStream("/obj-cubed-optifine-target.properties")) {
+			if (input == null) throw new IOException("Patcher target metadata is missing");
+			properties.load(input);
+		}
+		return switch (properties.getProperty("target", "")) {
+			case "pre1" -> new Target("pre1", PRE1_SHA256);
+			case "pre2" -> new Target("pre2", PRE2_SHA256);
+			default -> throw new IOException("Unknown OptiFine patcher target");
+		};
 	}
 
 	private static void patch(Path input, Path output) throws IOException {
@@ -173,5 +187,8 @@ public final class PatcherMain {
 		} catch (NoSuchAlgorithmException impossible) {
 			throw new AssertionError(impossible);
 		}
+	}
+
+	private record Target(String name, String sha256) {
 	}
 }

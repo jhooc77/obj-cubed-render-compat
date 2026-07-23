@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-rc.1
+
+- 비-Vulkan `26.1-universal` 배포를 제거하고 Minecraft 26.1/26.1.1/26.1.2와 Iris 1.10.9/1.11.2별 JAR 네 개로 분리
+- 각 Fabric JAR의 `minecraft`, `iris`, `sodium` 의존성 범위를 해당 파일 조합으로 제한
+- OptiFine 26.1.2 K1 pre1과 pre2 패처를 별도 JAR로 분리하고 각 공식 입력 해시만 허용
+- Minecraft 26.2 Vulkan 통합 Iris JAR은 검증된 beta.5를 그대로 유지
+
 ## 0.1.1-rc.1
 
 - 동반 모드의 obj-cubed 원본 텍스처 sampler를 OpenGL 기본값에 의존하지 않고 Iris albedo texture unit에 명시적으로 바인딩

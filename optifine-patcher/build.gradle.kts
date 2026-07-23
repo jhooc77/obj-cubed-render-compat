@@ -2,6 +2,11 @@ plugins {
     java
 }
 
+val optifineTarget = providers.gradleProperty("optifine_target").orElse("pre2")
+require(optifineTarget.get() in setOf("pre1", "pre2")) {
+    "optifine_target must be pre1 or pre2"
+}
+
 group = "io.github.jhooc77.objcubedcompat"
 version = rootProject.version
 
@@ -24,11 +29,18 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.jar {
-    archiveBaseName.set("obj-cubed-optifine-patcher")
+    archiveBaseName.set("obj-cubed-optifine-patcher-mc26.1.2-k1-${optifineTarget.get()}")
     manifest.attributes["Main-Class"] = "io.github.jhooc77.objcubedoptifine.PatcherMain"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
     exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*.DSA")
+}
+
+tasks.processResources {
+    inputs.property("optifine_target", optifineTarget)
+    filesMatching("obj-cubed-optifine-target.properties") {
+        expand("optifine_target" to optifineTarget.get())
+    }
 }
 
 tasks.test { enabled = false }
